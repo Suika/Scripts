@@ -15,7 +15,7 @@ DIR= # add path to the cherrymusic folder; must not end with /
 DAEMON=$DIR/cherrymusic
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
-PYTHON=  #add python executable path
+PYTHON=/usr/bin/python3  #add python executable path
 
 DAEMON_ARGS=""
 
