@@ -1,26 +1,39 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:        cherrymusic
-# Required-Start:    networking
-# Default-Start:    2 3 4 5
-# Default-Stop:        S 0 1 6
-# Short-Description:    CherryMusic Server Daemon
-# Description:        Starts/Stops/Restarts the cherrymusic Server Daemon
+# Provides:           cherrymusic
+# Required-Start:     $network $local_fs
+# Required-Stop:      $local_fs
+# Default-Start:      2 3 4 5
+# Default-Stop:       S 0 1 6
+# Short-Description:  CherryMusic Server Daemon
+# Description:        CherryMusic is a music streaming server based on CherryPy and jPlayer.
+#                     It plays the music inside your PC, smartphone, tablet, toaster or 
+#                     whatever device has a HTML5 compliant browser installed.
 ### END INIT INFO
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC="CherryMusic Server Daemon"
+DESC="CherryMusic"
 NAME=cherrymusic
 DIR= # add path to the cherrymusic folder; must not end with /
 DAEMON=$DIR/cherrymusic
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
-PYTHON=/usr/bin/python3  #add python executable path
+PYTHON=  #add python executable path
+
+# Git
+GIT=`which git`
+GIT_URL=https://github.com/devsnd/cherrymusic.git
+GIT_BRANCH=devel
+
+# Extra
+WGET=`which wget`
+CURL=`which curl`
 
 DAEMON_ARGS=""
 
-USER= #add user under which the service will run
-GROUP= #add group under which the service will run
+# Permissions
+USER= 
+GROUP=
 
 
 [ -x "$DAEMON" ] || exit 0
@@ -61,6 +74,26 @@ do_stop() {
         fi
     else
         log_failure_msg "$DESC '$NAME' is not running."
+        return 1
+    fi
+}
+
+do_update() {
+    if [ $? -le 1 ]; then
+        if [ -n "$GIT" -a -d "$DIR/.git"]; then
+            $GIT --git-dir=$DIR/.git pull $GIT_URL $GIT_BRANCH || return 1
+        elif [ -n "$WGET" -o -n "$CURL"]; then
+            if [ -n "$WGET"]; then
+                $WGET --no-check-certificate ${GIT_URL%.git}/tarball/$GIT_BRANCH -O - | tar xz --strip-components=1 -C $DIR || return 1
+            elif [ -n "$CURL"]; then
+                $CURL ${GIT_URL%.git}/tarball/$GIT_BRANCH -L -o - | tar xz --strip-components=1 -C $DIR || return 1
+            fi
+        else
+            log_failure_msg "Update aborted. Please install either git, wget or curl."
+            return 1
+        fi
+    else
+        log_failure_msg "Update aborted, could not stop '$NAME'"
         return 1
     fi
 }
@@ -121,15 +154,27 @@ case "$1" in
     ;;
     update)
         do_stop
-        if [ $? -le 1 ]; then
-            git --git-dir=$DIR/.git pull https://github.com/devsnd/cherrymusic.git devel
-            UPDATE_STATUS=$?
-            do_start
-            log_end_msg $UPDATE_STATUS
-        else
-            log_failure_msg "Update aborted, could not stop '$NAME'"
-            exit 1
-        fi
+        
+        case "$?" in
+            0|1)
+                do_update
+
+                case "$?" in
+                    0)
+                        do_start
+
+                        case "$?" in
+                            0) log_end_msg 0 ;;
+                            *) log_end_msg 1 ;;
+                        esac
+                    ;;
+                    *) log_end_msg 1 ;;
+                esac
+            ;;
+            *)
+                log_end_msg 1
+            ;;
+        esac
     ;;
     *)
         log_action_msg "Usage: $SCRIPTNAME {start|stop|restart|status|update}"
