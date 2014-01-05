@@ -80,12 +80,12 @@ do_stop() {
 
 do_update() {
     if [ $? -le 1 ]; then
-        if [ -n "$GIT" -a -d "$DIR/.git"]; then
+        if [ -n $GIT -a -d "$DIR/.git" ]; then
             $GIT --git-dir=$DIR/.git pull $GIT_URL $GIT_BRANCH || return 1
-        elif [ -n "$WGET" -o -n "$CURL"]; then
-            if [ -n "$WGET"]; then
+        elif [ -n $WGET -o -n $CURL ]; then
+            if [ -n $WGET ]; then
                 $WGET --no-check-certificate ${GIT_URL%.git}/tarball/$GIT_BRANCH -O - | tar xz --strip-components=1 -C $DIR || return 1
-            elif [ -n "$CURL"]; then
+            elif [ -n $CURL ]; then
                 $CURL ${GIT_URL%.git}/tarball/$GIT_BRANCH -L -o - | tar xz --strip-components=1 -C $DIR || return 1
             fi
         else
@@ -160,14 +160,7 @@ case "$1" in
                 do_update
 
                 case "$?" in
-                    0)
-                        do_start
-
-                        case "$?" in
-                            0) log_end_msg 0 ;;
-                            *) log_end_msg 1 ;;
-                        esac
-                    ;;
+                    0) log_end_msg 0 ;;
                     *) log_end_msg 1 ;;
                 esac
             ;;
