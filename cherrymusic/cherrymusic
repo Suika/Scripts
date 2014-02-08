@@ -65,7 +65,7 @@ do_stop() {
         PID=`cat $PIDFILE`
 
         if ( ps -p $PID > /dev/null ); then
-            start-stop-daemon --stop --signal 2 --quiet --pidfile $PIDFILE
+            start-stop-daemon --stop --retry 1 --signal 2 --quiet --pidfile $PIDFILE
             [ "$?" = 2 ] && return 2
         else
             log_failure_msg "$DESC '$NAME' is not running."
