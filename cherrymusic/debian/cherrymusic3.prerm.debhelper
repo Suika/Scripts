@@ -1,9 +1,9 @@
 
 # Automatically added by dh_python2:
 if which pyclean >/dev/null 2>&1; then
-	pyclean -p cherrymusic-3 
+	pyclean -p cherrymusic3 
 else
-	dpkg -L cherrymusic-3 | grep \.py$ | while read file
+	dpkg -L cherrymusic3 | grep \.py$ | while read file
 	do
 		rm -f "${file}"[co] >/dev/null
   	done
@@ -13,7 +13,7 @@ fi
 
 # Automatically added by dh_python3:
 if which py3clean >/dev/null 2>&1; then
-	py3clean -p cherrymusic-3 
+	py3clean -p cherrymusic3 
 fi
 
 # End automatically added section

@@ -21,7 +21,7 @@ Description: an mp3 server for your browser
  other users. It's able to play music on almost all devices since
  it happens in your browser and uses HTML5 for audio playback.
 
-Package: cherrymusic-3
+Package: cherrymusic3
 Architecture: all
 Depends: ${python3:Depends}, ${misc:Depends}, python3-pkg-resources, python3-setuptools, python3-unidecode (>= 0.04.9-1)
 Recommends: python3-dev (>= 3.2), build-essential
